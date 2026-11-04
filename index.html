@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS25C09 · Java Programming Quiz · RVS College</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+        body { background: linear-gradient(145deg, #eef2f7 0%, #d9e2ec 100%); padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; }
+        .main-container { max-width: 1000px; width: 100%; background: white; border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 2rem 2.2rem; }
+        .college-header { text-align: center; margin-bottom: 2rem; border-bottom: 3px solid #0b3b5c; padding-bottom: 1rem; }
+        .college-header h1 { font-size: 1.9rem; color: #0b3b5c; font-weight: 700; }
+        .college-header h2 { font-size: 1.3rem; color: #1e4a6b; font-weight: 500; margin-top: 0.25rem; }
+        .college-header .dept { font-size: 1rem; color: #2c5e7e; background: #e6f0f7; display: inline-block; padding: 0.3rem 1.5rem; border-radius: 40px; margin-top: 0.5rem; font-weight: 600; }
+        .subject-badge { background: #0b3b5c; color: white; padding: 0.4rem 1.5rem; border-radius: 30px; font-weight: 600; display: inline-block; margin-top: 0.6rem; font-size: 1rem; }
+        .name-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f0f6fc; padding: 1.2rem 1.8rem; border-radius: 60px; margin-bottom: 2rem; gap: 1rem; }
+        .name-section label { font-weight: 600; color: #0b3b5c; font-size: 1.1rem; }
+        .name-section input { flex: 1; min-width: 240px; padding: 0.9rem 1.5rem; border: 2px solid #b8d0e0; border-radius: 60px; font-size: 1rem; outline: none; background: white; font-weight: 500; }
+        .name-section input:focus { border-color: #0b3b5c; box-shadow: 0 0 0 4px rgba(11, 59, 92, 0.15); }
+        .quiz-grid { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2.5rem; }
+        .quiz-item { background: #ffffff; border: 1px solid #d6e3ee; border-radius: 1.5rem; padding: 1.4rem 1.8rem; }
+        .question-text { font-weight: 600; color: #0b2b40; font-size: 1.05rem; margin-bottom: 1rem; display: flex; gap: 0.6rem; }
+        .q-num { background: #0b3b5c; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+        .unit-tag { font-size: 0.75rem; background: #e3eef7; color: #2c5e7e; padding: 0.15rem 0.7rem; border-radius: 20px; font-weight: 600; margin-left: auto; flex-shrink: 0; }
+        .options { display: flex; flex-wrap: wrap; gap: 1rem 2rem; padding-left: 0.5rem; }
+        .option { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.98rem; color: #1f3f55; font-weight: 500; }
+        .option input[type="radio"] { width: 18px; height: 18px; accent-color: #0b3b5c; cursor: pointer; }
+        .action-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.8rem; }
+        .btn { border-radius: 60px; padding: 1rem 2.2rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; background: white; color: #0b3b5c; border: 2px solid #0b3b5c; }
+        .btn-primary { background: #0b3b5c; color: white; }
+        .btn-primary:hover { background: #0f4b6e; transform: translateY(-2px); }
+        .btn-secondary { background: #e3eef7; border-color: #b8d0e0; }
+        .btn-secondary:hover { background: #d0e2f0; }
+        .score-preview { font-weight: 700; font-size: 1.25rem; color: #0b3b5c; background: #e9f2f9; padding: 0.6rem 1.5rem; border-radius: 40px; }
+        #pdf-render-container { position: fixed; left: -10000px; top: 0; width: 800px; background: #ffffff; z-index: -1; }
+        .scorecard { font-family: 'Segoe UI', Arial, sans-serif; padding: 2rem; width: 800px; background: white; color: #1f3f55; }
+        .scorecard-header { text-align: center; border-bottom: 3px double #0b3b5c; padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
+        .scorecard-header h2 { color: #0b3b5c; font-size: 1.8rem; }
+        .scorecard-header h3 { color: #2a5b7a; font-weight: 500; margin-top: 0.2rem; font-size: 1rem; }
+        .student-details { display: flex; justify-content: space-between; background: #f2f7fc; padding: 1rem 1.8rem; border-radius: 16px; margin-bottom: 1.8rem; font-size: 1.1rem; font-weight: 500; }
+        .score-summary { display: flex; justify-content: space-around; margin: 2rem 0; background: #ffffff; border: 2px solid #d6e3ee; border-radius: 24px; padding: 1.5rem; }
+        .score-summary div { text-align: center; }
+        .score-summary .big-number { font-size: 2.6rem; font-weight: 800; color: #0b3b5c; line-height: 1.2; }
+        .answer-review { margin-top: 2rem; }
+        .review-item { display: flex; gap: 0.8rem; padding: 0.7rem 0.5rem; border-bottom: 1px solid #e0eaf3; font-size: 0.9rem; }
+        .review-item.correct { background: #e6f7e6; }
+        .review-item.incorrect { background: #ffeaea; }
+        .review-q { font-weight: 600; flex: 1; }
+        .review-ans { color: #2a5b7a; font-weight: 500; width: 45%; }
+        @media (max-width: 600px) {
+            .main-container { padding: 1.5rem 1rem; }
+            .options { flex-direction: column; gap: 0.5rem; }
+            .action-bar { flex-direction: column; align-items: stretch; }
+            .btn { justify-content: center; }
+            .name-section { flex-direction: column; align-items: stretch; border-radius: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="quizApp">
+        <div class="college-header">
+            <h1>R.V.S College of Engineering, Dindigul</h1>
+            <h2>Department of Artificial Intelligence and Data Science</h2>
+            <div class="dept">CS25C09 · Java Programming</div>
+            <div class="subject-badge">☕ 25 Question Quiz · Units 1–6</div>
+        </div>
+
+        <div class="name-section">
+            <label for="studentName">👤 Student name:</label>
+            <input type="text" id="studentName" placeholder="e.g. Priya Raman" value="Student">
+        </div>
+
+        <div class="quiz-grid" id="quizGrid"></div>
+
+        <div class="action-bar">
+            <div class="score-preview" id="scorePreview">Score: 0 / 25</div>
+            <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="resetBtn" type="button">⟲ Reset</button>
+                <button class="btn btn-primary" id="downloadPdfBtn" type="button">📄 Generate PDF Scorecard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdf-render-container">
+        <div class="scorecard" id="scorecardContent"></div>
+    </div>
+
+    <script>
+        (function() {
+            try {
+                // ---------- JAVA QUIZ DATA (mapped to syllabus units) ----------
+                const questions = [
+                    // Unit 1: Foundations of OOP and Java
+                    { u: "Unit 1", q: "Which principle of OOP refers to hiding internal implementation details and exposing only necessary features?", options: ["Inheritance", "Encapsulation", "Polymorphism", "Abstraction"], correct: 1 },
+                    { u: "Unit 1", q: "Which JDK tool is used to compile a Java source file?", options: ["java", "javac", "jdb", "javadoc"], correct: 1 },
+                    { u: "Unit 1", q: "What is the default value of an instance variable of type int in Java?", options: ["null", "0", "1", "undefined"], correct: 1 },
+                    { u: "Unit 1", q: "Which access specifier makes a member visible only within its own class?", options: ["public", "protected", "private", "default"], correct: 2 },
+                    { u: "Unit 1", q: "What is the primary purpose of a constructor in Java?", options: ["To destroy objects", "To initialize objects", "To override methods", "To declare static members"], correct: 1 },
+
+                    // Unit 2: Conceptual Foundations and Capabilities
+                    { u: "Unit 2", q: "Which keyword is used in Java to inherit a class?", options: ["implements", "extends", "inherits", "super"], correct: 1 },
+                    { u: "Unit 2", q: "Which of the following is a checked exception in Java?", options: ["NullPointerException", "ArithmeticException", "IOException", "ArrayIndexOutOfBoundsException"], correct: 2 },
+                    { u: "Unit 2", q: "Which class must a user-defined thread extend to create a thread by inheritance?", options: ["Runnable", "Thread", "RunnableThread", "Executor"], correct: 1 },
+                    { u: "Unit 2", q: "What is the purpose of autoboxing in Java?", options: ["To convert primitive to wrapper object automatically", "To convert object to primitive automatically", "To serialize objects", "To cast between reference types"], correct: 0 },
+                    { u: "Unit 2", q: "Which feature allows a class to implement multiple interfaces?", options: ["Multiple inheritance via extends", "Interfaces via implements with commas", "Using the implements keyword with one interface only", "Using the extends keyword with multiple classes"], correct: 1 },
+
+                    // Unit 3: Core Libraries
+                    { u: "Unit 3", q: "Which String method returns the number of characters in a string?", options: ["size()", "length()", "count()", "charCount()"], correct: 1 },
+                    { u: "Unit 3", q: "Which package contains the String, Math, and System classes?", options: ["java.io", "java.util", "java.lang", "java.awt"], correct: 2 },
+                    { u: "Unit 3", q: "Which class in java.io is commonly used to read character files efficiently?", options: ["FileInputStream", "BufferedReader", "PrintWriter", "RandomAccessFile"], correct: 1 },
+                    { u: "Unit 3", q: "Which AWT class is used as the base class for all AWT components?", options: ["Container", "Component", "Panel", "Window"], correct: 1 },
+                    { u: "Unit 3", q: "Which layout manager arranges components in a single row or column?", options: ["BorderLayout", "GridLayout", "FlowLayout", "CardLayout"], correct: 2 },
+
+                    // Unit 4: I/O and GUI Programming
+                    { u: "Unit 4", q: "Which class provides methods to read from the console in Java?", options: ["Scanner", "ConsoleReader", "InputStreamReader", "BufferedWriter"], correct: 0 },
+                    { u: "Unit 4", q: "Which package contains the Swing components like JFrame and JButton?", options: ["java.awt", "javax.swing", "java.swing", "java.gui"], correct: 1 },
+                    { u: "Unit 4", q: "Which Swing class represents a menu bar?", options: ["JMenu", "JMenuItem", "JMenuBar", "JPopupMenu"], correct: 2 },
+                    { u: "Unit 4", q: "Which class is used to write characters to a file in java.io?", options: ["FileReader", "FileWriter", "FileInputStream", "FileOutputStream"], correct: 1 },
+
+                    // Unit 5: JDBC
+                    { u: "Unit 5", q: "Which JDBC driver type is known as the 'bridge' driver?", options: ["Type 1", "Type 2", "Type 3", "Type 4"], correct: 0 },
+                    { u: "Unit 5", q: "Which interface in JDBC is used to execute SQL queries?", options: ["Connection", "Statement", "DriverManager", "ResultSet"], correct: 1 },
+                    { u: "Unit 5", q: "Which JDBC class is used to establish a connection to a database?", options: ["Connection", "DriverManager", "Statement", "ResultSet"], correct: 1 },
+
+                    // Unit 6: Collections Framework
+                    { u: "Unit 6", q: "Which collection class implements a growable array of objects?", options: ["ArrayList", "HashMap", "HashSet", "LinkedList"], correct: 0 },
+                    { u: "Unit 6", q: "Which interface is the root of the Java Collections Framework?", options: ["Collection", "List", "Set", "Map"], correct: 0 },
+                    { u: "Unit 6", q: "Which package contains the java.util classes like ArrayList and HashMap?", options: ["java.lang", "java.util", "java.io", "java.collections"], correct: 1 }
+                ];
+
+                let userAnswers = new Array(25).fill(null);
+
+                const quizGrid = document.getElementById('quizGrid');
+                const scorePreview = document.getElementById('scorePreview');
+                const studentNameInput = document.getElementById('studentName');
+                const resetBtn = document.getElementById('resetBtn');
+                const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+                const scorecardContent = document.getElementById('scorecardContent');
+
+                function renderQuiz() {
+                    let html = '';
+                    questions.forEach((q, idx) => {
+                        html += '<div class="quiz-item" data-qidx="' + idx + '">';
+                        html += '<div class="question-text"><span class="q-num">' + (idx + 1) + '</span><span>' + q.q + '</span><span class="unit-tag">' + q.u + '</span></div>';
+                        html += '<div class="options">';
+                        q.options.forEach((opt, optIdx) => {
+                            const checked = (userAnswers[idx] === optIdx) ? 'checked' : '';
+                            html += '<label class="option"><input type="radio" name="q' + idx + '" value="' + optIdx + '" data-qidx="' + idx + '" data-optidx="' + optIdx + '" ' + checked + '> ' + opt + '</label>';
+                        });
+                        html += '</div></div>';
+                    });
+                    quizGrid.innerHTML = html;
+
+                    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            const qIdx = parseInt(this.dataset.qidx);
+                            const optIdx = parseInt(this.dataset.optidx);
+                            userAnswers[qIdx] = optIdx;
+                            updateScorePreview();
+                        });
+                    });
+                }
+
+                function calculateScore() {
+                    let correctCount = 0;
+                    questions.forEach((q, idx) => {
+                        if (userAnswers[idx] === q.correct) correctCount++;
+                    });
+                    return correctCount;
+                }
+
+                function updateScorePreview() {
+                    scorePreview.textContent = 'Score: ' + calculateScore() + ' / 25';
+                }
+
+                function escapeHTML(str) {
+                    return String(str).replace(/[&<>"]/g, function(m) {
+                        if (m === '&') return '&amp;';
+                        if (m === '<') return '&lt;';
+                        if (m === '>') return '&gt;';
+                        if (m === '"') return '&quot;';
+                        return m;
+                    });
+                }
+
+                function buildScorecardHTML() {
+                    const studentName = studentNameInput.value.trim() || 'Student';
+                    const score = calculateScore();
+                    const percentage = ((score / 25) * 100).toFixed(1);
+                    const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                    let reviewHTML = '';
+                    questions.forEach((q, idx) => {
+                        const selected = userAnswers[idx];
+                        const isCorrect = (selected === q.correct);
+                        const selectedText = (selected !== null) ? q.options[selected] : 'Not attempted';
+                        const correctText = q.options[q.correct];
+                        reviewHTML += '<div class="review-item ' + (isCorrect ? 'correct' : 'incorrect') + '">';
+                        reviewHTML += '<div class="review-q">' + (idx + 1) + '. ' + escapeHTML(q.q) + ' <span style="font-size:0.75rem;color:#5c7d96;">(' + q.u + ')</span></div>';
+                        reviewHTML += '<div class="review-ans">' + (isCorrect ? '✓ Correct' : 'Your answer: ' + escapeHTML(selectedText) + '<br>Correct: ' + escapeHTML(correctText)) + '</div>';
+                        reviewHTML += '</div>';
+                    });
+
+                    return '<div class="scorecard-header">' +
+                        '<h2>R.V.S College of Engineering, Dindigul</h2>' +
+                        '<h3>Department of AI &amp; DS · CS25C09 Java Programming</h3>' +
+                        '<h3 style="font-size:1.1rem; margin-top:0.5rem;">📋 Quiz Scorecard</h3>' +
+                        '</div>' +
+                        '<div class="student-details">' +
+                        '<span><strong>Student:</strong> ' + escapeHTML(studentName) + '</span>' +
+                        '<span><strong>Date:</strong> ' + dateStr + '</span>' +
+                        '</div>' +
+                        '<div class="score-summary">' +
+                        '<div><div class="big-number">' + score + '</div><div>out of 25</div></div>' +
+                        '<div><div class="big-number">' + percentage + '%</div><div>Percentage</div></div>' +
+                        '<div><div class="big-number">' + (score >= 13 ? '✅ PASS' : '❌ FAIL') + '</div><div>Result</div></div>' +
+                        '</div>' +
+                        '<div class="answer-review">' +
+                        '<h3 style="color:#0b3b5c; margin-bottom:1rem;">📝 Detailed Review</h3>' +
+                        reviewHTML +
+                        '</div>';
+                }
+
+                async function generatePDF() {
+                    const studentName = studentNameInput.value.trim() || 'Student';
+                    scorecardContent.innerHTML = buildScorecardHTML();
+
+                    await new Promise(r => setTimeout(r, 150));
+
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'pt', 'a4');
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const margin = 20;
+
+                    try {
+                        const canvas = await html2canvas(scorecardContent, {
+                            scale: 2,
+                            useCORS: true,
+                            backgroundColor: '#ffffff',
+                            logging: false,
+                            windowWidth: scorecardContent.scrollWidth,
+                            windowHeight: scorecardContent.scrollHeight
+                        });
+
+                        const imgData = canvas.toDataURL('image/png');
+                        const imgWidth = pageWidth - margin * 2;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                        let heightLeft = imgHeight;
+                        let position = margin;
+
+                        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+                        heightLeft -= (pageHeight - margin * 2);
+
+                        while (heightLeft > 0) {
+                            pdf.addPage();
+                            position = margin - (imgHeight - heightLeft);
+                            pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+                            heightLeft -= (pageHeight - margin * 2);
+                        }
+
+                        const safeName = studentName.replace(/[^a-zA-Z0-9_-]/g, '_');
+                        pdf.save('Java_Quiz_Scorecard_' + safeName + '.pdf');
+                    } catch (err) {
+                        console.error('PDF generation failed:', err);
+                        alert('Could not generate PDF: ' + err.message);
+                    }
+                }
+
+                function resetQuiz() {
+                    if (!confirm('Reset all answers?')) return;
+                    userAnswers = new Array(25).fill(null);
+                    renderQuiz();
+                    updateScorePreview();
+                }
+
+                renderQuiz();
+                updateScorePreview();
+                resetBtn.addEventListener('click', resetQuiz);
+                downloadPdfBtn.addEventListener('click', function() {
+                    if (!studentNameInput.value.trim()) {
+                        alert('Please enter student name before generating the scorecard.');
+                        studentNameInput.focus();
+                        return;
+                    }
+                    generatePDF();
+                });
+
+            } catch (e) {
+                console.error('Initialization error:', e);
+                document.getElementById('quizGrid').innerHTML =
+                    '<p style="color:red;padding:1rem;">⚠️ Something went wrong loading the quiz. Check the browser console for details.</p>';
+            }
+        })();
+    </script>
+</body>
+</html>
